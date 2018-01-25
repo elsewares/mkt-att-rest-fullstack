@@ -1,0 +1,69 @@
+.App {
+    text-align: left;
+    width: 960px;
+    max-width: 960px;
+    margin: 0 auto 0 auto;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+}
+
+
+.app-header {
+    background-color: white;
+    height: 200px;
+    padding: 20px;
+    color: #3b5998;
+    flex-flow: row wrap;
+    flex: 1 1 100%;
+    justify-content: space-around;
+}
+
+
+.app-logo {
+    height: 200px;
+    flex: 1 1 100%;
+}
+
+.app-logo > p {
+    float: right;
+    font-size: 2.25em;
+    position: relative;
+    top: 50px;
+    left: -40px;
+}
+
+aside.nav-aside {
+    flex: 1 33%;
+    background-color: #3b5998;
+    max-height: 480px;
+    overflow-y: scroll;
+}
+
+aside.nav-aside > div {
+    flex: 1 33%;
+    height: 30px;
+    color: white;
+    font-weight: normal;
+    background-color: #3b5998;
+    padding: 17px 20px 10px 20px;
+}
+
+aside.nav-aside > div:hover, aside.nav-aside > div.active {
+    background-color: white;
+    color: #3b5998;
+}
+
+aside.nav-aside > div > a {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+aside.nav-aside > div:hover > a, aside.nav-aside > div.active > a {
+    color: #3b5998;
+}
+
+div.main {
+  flex: 2 66%;
+}
