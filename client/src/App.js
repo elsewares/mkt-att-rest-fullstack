@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import logo from './logo.png';
-import ContributorProfile from './components/ContributorProfile/ContributorProfile';
+import axios from 'axios';
+import './services/axios-configured';
+import UserProfile from './components/UserProfile/UserProfile';
 import './css/App.css';
 
 class App extends Component {
@@ -8,29 +10,62 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            contributors: [],
-            currentContributor: {}
+            users: [],
+            currentUser: {},
+            new_username: '',
+            newUserError: ''
         };
 
-        this.selectedContributor = this.selectedContributor.bind(this);
-        this.setCurrentContributor = this.setCurrentContributor.bind(this);
+        this.selectedUser = this.selectedUser.bind(this);
+        this.setCurrentUser = this.setCurrentUser.bind(this);
+        this.submitNewUser = this.submitNewUser.bind(this);
+        this.handleNewUserChange = this.handleNewUserChange.bind(this);
+        this.submitNewUser = this.submitNewUser.bind(this);
+        this.showAddUser = this.showAddUser.bind(this);
     }
 
-    selectedContributor () {
-        return this.state.currentContributor === {};
+    showAddUser () {
+      this.setCurrentUser({});
     }
 
-    setCurrentContributor (obj) {
-        this.setState({'currentContributor': obj});
+    selectedUser () {
+        return this.state.currentUser === {};
+    }
+
+    setCurrentUser (obj) {
+        this.setState({'currentUser': obj});
+    }
+
+    handleNewUserChange (event) {
+      this.setState({new_username: event.target.value});
+    }
+
+    submitNewUser () {
+      let _this = this;
+
+      axios.post(`user/${this.state.new_username}/`)
+        .then(user => {
+          let users = _this.state.users;
+          users.push(user.data);
+          _this.setState({'users': users});
+          _this.setCurrentUser(user.data);
+          _this.setState({new_username: ''});
+        })
+        .catch(error => {
+          _this.setState({newUserError: error});
+        });
     }
 
     componentDidMount() {
         let _this = this;
-        fetch('/contributors')
-            .then(res => res.json())
-            .then(contributors => {
-                contributors = JSON.parse(contributors);
-                _this.setState({ contributors })
+
+        axios.get('users/')
+            .then(users => {
+              users = users.data === null ? [] : users.data;
+                _this.setState({users: users });
+            })
+            .catch(error => {
+              console.log(error);
             });
     }
 
@@ -40,20 +75,31 @@ class App extends Component {
                 <header className="app-header">
                     <div className="app-logo">
                         <img src={logo} className="App-logo" alt="Marketing Acquisitions"/>
-                        <p>Marketing Acquisitions React App</p>
+                        <p>Marketing Acquisitions Fullstack</p>
                     </div>
                 </header>
                 <aside className="nav-aside">
-                    {this.state.contributors.map(contributor =>
-                        <div className={(this.state.currentContributor.id === contributor.id) ? 'active' : ''} key={contributor.id}>
-                            <a onClick={this.setCurrentContributor.bind(this, contributor)}>{contributor.login}</a>
+                  <div className="add-user-btn">
+                    <button className="btn btn-primary" onClick={this.showAddUser}>Add New User</button>
+                  </div>
+                    {this.state.users.map(user =>
+                        <div className={(this.state.currentUser.username === user.username) ? 'active' : ''} key={user.username}>
+                            <a onClick={this.setCurrentUser.bind(this, user)}>{user.username}</a>
                         </div>
                     )}
                 </aside>
                 <div className="main">
+                  {this.state.currentUser && this.state.currentUser.username ? (
                     <div className="profile-container">
-                        <ContributorProfile contributor={this.state.currentContributor} />
+                        <UserProfile user={this.state.currentUser} />
                     </div>
+                  ) : (
+                    <div className="new-user-form">
+                      <h4>Add a new user.</h4>
+                      <input id="new_username" value={this.state.new_username}  onChange={this.handleNewUserChange}/>
+                      <button className="btn btn-warning" onClick={this.submitNewUser}>Add New User</button>
+                    </div>
+                  )}
                 </div>
             </div>
         );

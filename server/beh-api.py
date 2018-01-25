@@ -39,38 +39,29 @@ def user_index(username):
 
 @app.route('/repositories/',  methods=['GET', 'POST', 'DELETE'])
 def repo_index():
-    username = request.args['username']
-    repository = request.args['repository']
-
-    if username is None:
-        return abort(400, 'NO_USERNAME_GIVEN')
-
     if request.method == 'GET':
-        return json_it(mongodb.user_repos.find_one({'username': username}))
+        return json_it(mongodb.user_repos.find_one({'username': request.args['username']}))
 
     if request.method == 'POST':
-        if repository is None:
-            return abort(400, 'NO_REPO_GIVEN')
+        if not mongodb.user_repos.find_one({'username': request.args['username']}):
+            added_repo = mongodb.user_repos.insert_one({'username': request.args['username'],
+                                                        'repositories': [request.args['repository']]})
+            if added_repo.inserted_id:
+                return json_it(mongodb.user_repos.find_one({'username': request.args['username']}))
 
-        if not mongodb.user_repos.find_one({'username': username}):
-            added_repo = mongodb.user_repos.insert_one({'username': username,
-                                                        'repositories': [repository]})
-            return json_it(mongodb.users.find_one({'_id': added_repo.inserted_id}))
-
-        if not mongodb.user_repos.find_one({'username': username, 'repositories': {'$in': [repository]}}):
-            updated_repo = mongodb.user_repos.update_one({'username': username},
-                                                         {'$push': {'repositories': repository}})
-            return json_it(updated_repo.modified_count == 1)
+        if not mongodb.user_repos.find_one({'username': request.args['username'], 'repositories': {'$in': [request.args['repository']]}}):
+            updated_repo = mongodb.user_repos.update_one({'username': request.args['username']},
+                                                         {'$push': {'repositories': request.args['repository']}})
+            if updated_repo:
+                return json_it(mongodb.user_repos.find_one({'username': request.args['username']}))
         else:
             return abort(400, 'EXISTING_REPO_NAME')
 
     if request.method == 'DELETE':
-        if repository is None:
-            abort(400, 'NO_REPO_GIVEN')
-
-        gone_repo = mongodb.user_repos.update_one({'username': username},
-                                                  {'$pull': {'repositories': repository}})
-        return json_it(gone_repo.modified_count == 1)
+        gone_repo = mongodb.user_repos.update_one({'username': request.args['username']},
+                                                  {'$pull': {'repositories': request.args['repository']}})
+        if gone_repo.modified_count == 1:
+            return json_it(mongodb.user_repos.find_one({'username': request.args['username']}))
 
 
 if __name__ == '__main__':

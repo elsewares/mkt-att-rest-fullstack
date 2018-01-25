@@ -17,8 +17,8 @@
     flex-flow: row wrap;
     flex: 1 1 100%;
     justify-content: space-around;
+    margin-bottom: 40px;
 }
-
 
 .app-logo {
     height: 200px;
@@ -46,7 +46,12 @@ aside.nav-aside > div {
     color: white;
     font-weight: normal;
     background-color: #3b5998;
-    padding: 17px 20px 10px 20px;
+    padding: 4px 20px 10px 20px;
+}
+
+aside.nav-aside > div.add-user-btn {
+  height: 60px;
+  padding-top: 10px;
 }
 
 aside.nav-aside > div:hover, aside.nav-aside > div.active {
@@ -66,4 +71,9 @@ aside.nav-aside > div:hover > a, aside.nav-aside > div.active > a {
 
 div.main {
   flex: 2 66%;
+  padding-left: 40px;
+}
+
+div.main button.btn {
+  margin-left: 20px;
 }
